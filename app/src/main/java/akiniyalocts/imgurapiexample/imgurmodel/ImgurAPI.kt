@@ -38,7 +38,7 @@ interface ImgurAPI {
             @Header("Authorization") auth: String,
             @Query("title") title: String,
             @Query("description") description: String,
-            @Query("album") albumId: String,
+            @Query("album") albumId: String?,
             @Query("account_url") username: String,
             @Body file: TypedFile,
             cb: Callback<ImageResponse>

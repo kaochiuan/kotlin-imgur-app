@@ -48,7 +48,7 @@ class UploadService(context: Context) {
                 Constants.clientAuth,
                 upload.title!!,
                 upload.description!!,
-                upload.albumId!!, "",
+                upload.albumId, "",
                 TypedFile("image/*", upload.image!!),
                 object : Callback<ImageResponse> {
                     override fun success(imageResponse: ImageResponse, response: Response?) {

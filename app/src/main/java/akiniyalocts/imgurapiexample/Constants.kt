@@ -20,7 +20,7 @@ object Constants {
     /*
       Redirect URL for android.
      */
-    val MY_IMGUR_REDIRECT_URL = "http://android"
+    val MY_IMGUR_REDIRECT_URL = "https://www.getpostman.com/oauth2/callback"
 
     /*
       Client Auth

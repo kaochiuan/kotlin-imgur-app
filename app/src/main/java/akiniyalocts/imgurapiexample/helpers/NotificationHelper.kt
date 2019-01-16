@@ -45,7 +45,7 @@ class NotificationHelper(context: Context) {
     }
 
     fun createUploadedNotification(response: ImageResponse) {
-        val mBuilder = NotificationCompat.Builder(mContext.get())
+        val mBuilder = NotificationCompat.Builder(mContext.get()!!, "channelId")
         mBuilder.setSmallIcon(android.R.drawable.ic_menu_gallery)
         mBuilder.setContentTitle(mContext.get()!!.getString(R.string.notifaction_success))
 

@@ -21,10 +21,8 @@ import akiniyalocts.imgurapiexample.imgurmodel.ImageResponse
 import akiniyalocts.imgurapiexample.imgurmodel.Upload
 import akiniyalocts.imgurapiexample.services.UploadService
 import android.app.Activity
+import android.support.design.widget.FloatingActionButton
 import android.view.View
-import butterknife.Bind
-import butterknife.ButterKnife
-import butterknife.OnClick
 import retrofit.Callback
 import retrofit.RetrofitError
 import retrofit.client.Response
@@ -35,30 +33,43 @@ class MainActivity : AppCompatActivity() {
       These annotations are for ButterKnife by Jake Wharton
       https://github.com/JakeWharton/butterknife
      */
-    @Bind(R.id.imageview)
-    internal var uploadImage: ImageView? = null
-    @Bind(R.id.editText_upload_title)
-    internal var uploadTitle: EditText? = null
-    @Bind(R.id.editText_upload_desc)
-    internal var uploadDesc: EditText? = null
-    @Bind(R.id.toolbar)
-    internal var toolbar: Toolbar? = null
-
+    private var uploadImage: ImageView? = null
+    private var uploadTitle: EditText? = null
+    private var uploadDesc: EditText? = null
+    private var toolbar: Toolbar? = null
+    private var fab: FloatingActionButton? = null
     private var upload: Upload? = null // Upload object containging image and meta data
     private var chosenFile: File? = null //chosen file from intent
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        ButterKnife.bind(this)
-
         setSupportActionBar(toolbar)
+        buildViews()
+    }
+
+    fun buildViews(){
+        val bundle = this.intent.extras
+
+        uploadImage = findViewById(R.id.imageview)
+        uploadTitle = findViewById(R.id.editText_upload_title)
+        uploadDesc = findViewById(R.id.editText_upload_desc)
+        toolbar = findViewById(R.id.toolbar)
+        fab = findViewById(R.id.fab)
+
+
+        fab!!.setOnClickListener(onUploadImage)
+        uploadImage!!.setOnClickListener(onChoseImage)
+    }
+
+    private val onChoseImage = View.OnClickListener{
+        uploadDesc!!.clearFocus()
+        uploadTitle!!.clearFocus()
+        IntentHelper.chooseFileIntent(this)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        val returnUri: Uri?
-
         if (requestCode != IntentHelper.FILE_PICK) {
             return
         }
@@ -67,8 +78,8 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        returnUri = data!!.data
-        val filePath = DocumentHelper.getPath(this, returnUri)
+        val returnUri: Uri? = data!!.data
+        val filePath = DocumentHelper.getPath(this, returnUri!!)
         //Safety check to prevent null pointer exception
         if (filePath == null || filePath.isEmpty()) return
         chosenFile = File(filePath)
@@ -77,20 +88,13 @@ class MainActivity : AppCompatActivity() {
                     Picasso is a wonderful image loading tool from square inc.
                     https://github.com/square/picasso
                  */
-        Picasso.with(baseContext)
-                .load(chosenFile)
+        Picasso
+                .get()
+                .load(chosenFile!!)
                 .placeholder(R.drawable.ic_photo_library_black)
                 .fit()
                 .into(uploadImage)
 
-    }
-
-
-    @OnClick(R.id.imageview)
-    fun onChooseImage() {
-        uploadDesc!!.clearFocus()
-        uploadTitle!!.clearFocus()
-        IntentHelper.chooseFileIntent(this)
     }
 
     private fun clearInput() {
@@ -101,18 +105,19 @@ class MainActivity : AppCompatActivity() {
         uploadImage!!.setImageResource(R.drawable.ic_photo_library_black)
     }
 
-    @OnClick(R.id.fab)
-    fun uploadImage() {
-        /*
-      Create the @Upload object
-     */
-        if (chosenFile == null) return
-        createUpload(chosenFile!!)
 
+    private val onUploadImage = View.OnClickListener {
         /*
-      Start upload
-     */
-        UploadService(this).Execute(upload!!, UiCallback())
+        Create the @Upload object
+        */
+        if (chosenFile != null) {
+            createUpload(chosenFile!!)
+
+            /*
+            Start upload
+            */
+            UploadService(this).Execute(upload!!, UiCallback())
+        }
     }
 
     private fun createUpload(image: File) {
@@ -121,6 +126,7 @@ class MainActivity : AppCompatActivity() {
         upload!!.image = image
         upload!!.title = uploadTitle!!.text.toString()
         upload!!.description = uploadDesc!!.text.toString()
+        //upload!!.albumId = ""
     }
 
     private inner class UiCallback : Callback<ImageResponse> {
